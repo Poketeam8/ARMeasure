@@ -37,3 +37,13 @@ flowchart TD
     H -->|Sí| D
     H -->|No| I[Finalizar]
 
+
+Instrucciones de uso
+
+Abrir la aplicación en el dispositivo móvil.
+En la pantalla principal, presionar el botón "Comenzar".
+Apuntar la cámara hacia una superficie plana.
+Tocar la pantalla para seleccionar el punto inicial.
+Tocar nuevamente para seleccionar el punto final.
+La aplicación mostrará la distancia entre los puntos seleccionados.
+Repetir el proceso para nuevas mediciones.
