@@ -27,15 +27,16 @@ RNF4: Compatible con dispositivos que soporten ARCore.
 
 ```mermaid
 flowchart TD
-    A[Iniciar App] --> B[Activar Cámara]
+    A[Iniciar App] --> B[Activar Camara]
     B --> C[Detectar superficie]
     C --> D[Seleccionar punto inicial]
     D --> E[Seleccionar punto final]
     E --> F[Calcular distancia]
     F --> G[Mostrar resultado]
-    G --> H{¿Nueva medición?}
-    H -->|Sí| D
+    G --> H{Nueva medicion?}
+    H -->|Si| D
     H -->|No| I[Finalizar]
+```
 
 
 Instrucciones de uso
