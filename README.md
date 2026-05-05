@@ -25,15 +25,17 @@ El proyecto se estructura utilizando una arquitectura modular basada en features
 
 ```mermaid
 flowchart TD
-    A[Iniciar App] --> B[Activar Camara]
-    B --> C[Detectar superficie]
-    C --> D[Seleccionar punto inicial]
-    D --> E[Seleccionar punto final]
-    E --> F[Calcular distancia]
-    F --> G[Mostrar resultado]
-    G --> H{Nueva medicion?}
-    H -->|Si| D
-    H -->|No| I[Finalizar]
+    A[Iniciar App] --> B[Ir a pantalla Medir]
+    B --> C[Presionar botón Medir]
+    C --> D[Generar medición]
+    D --> E[Mostrar distancia en pantalla]
+    E --> F[Guardar medición en historial]
+    F --> G{¿Nueva medición?}
+    G -->|Sí| C
+    G -->|No| H[Ir a Historial]
+    H --> I[Mostrar lista de mediciones]
+    I --> J[Seleccionar medición]
+    J --> K[Ver detalle]
 ```
 
 Instrucciones de uso
