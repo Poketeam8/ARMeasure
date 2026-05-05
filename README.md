@@ -49,4 +49,4 @@ La aplicación mostrará la distancia entre los puntos seleccionados.
 Repetir el proceso para nuevas mediciones.
 
 Repositorio del proyecto: https://github.com/Poketeam8/ARMeasure
-Video de exposición: https://drive.google.com/file/d/1Vk8wg7AybH0QN0okeNGty2-0dDyYdBaI/view?usp=sharing
+Video de exposición: https://drive.google.com/file/d/1vQVchMgU5oK0tyDAO1P4SlRIwxSpO6kD/view?usp=sharing
