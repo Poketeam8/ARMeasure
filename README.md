@@ -46,5 +46,5 @@ Tocar nuevamente para seleccionar el punto final.
 La aplicación mostrará la distancia entre los puntos seleccionados.
 Repetir el proceso para nuevas mediciones.
 
-Repositorio del proyecto: (agregar enlace)
-Video de exposición: (agregar enlace)
+Repositorio del proyecto: https://github.com/Poketeam8/ARMeasure
+Video de exposición: https://drive.google.com/file/d/1Vk8wg7AybH0QN0okeNGty2-0dDyYdBaI/view?usp=sharing

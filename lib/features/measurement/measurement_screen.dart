@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import '../../core/data/measurement_data.dart';
 
 class MeasurementScreen extends StatefulWidget {
   const MeasurementScreen({super.key});
@@ -12,8 +13,11 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   double? distancia;
 
   void medir() {
+    final nuevaDistancia = Random().nextDouble() * 5;
+
     setState(() {
-      distancia = Random().nextDouble() * 5; // simula metros
+      distancia = nuevaDistancia;
+      MeasurementData.measurements.add(nuevaDistancia);
     });
   }
 
@@ -21,16 +25,41 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Medir")),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text("Simulación de medición AR"),
+            Image.asset('assets/images/icons/medir.png', width: 80),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: medir, child: const Text("Medir")),
-            const SizedBox(height: 20),
+
+            const Text(
+              "Simulación de medición AR",
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 30),
+
+            ElevatedButton(
+              onPressed: medir,
+              child: const Text("Realizar medición"),
+            ),
+
+            const SizedBox(height: 30),
+
             if (distancia != null)
-              Text("Distancia: ${distancia!.toStringAsFixed(2)} m"),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    "Distancia: ${distancia!.toStringAsFixed(2)} m",
+                    style: const TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
