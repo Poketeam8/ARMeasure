@@ -34,16 +34,31 @@ class _MainNavigationState extends State<MainNavigation> {
         currentIndex: _index,
         onTap: (value) => setState(() => _index = value),
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          BottomNavigationBarItem(icon: Icon(Icons.straighten), label: "Medir"),
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
+            icon: Image.asset('assets/images/icons/inicio.png', width: 24),
+            label: "Inicio",
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/images/icons/medir.png', width: 24),
+            label: "Medir",
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/images/icons/historial.png', width: 24),
             label: "Historial",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
-          BottomNavigationBarItem(icon: Icon(Icons.info), label: "About"),
-          BottomNavigationBarItem(icon: Icon(Icons.help), label: "Ayuda"),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/images/icons/perfil.png', width: 24),
+            label: "Perfil",
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/images/icons/about.png', width: 24),
+            label: "About",
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/images/icons/ayuda.png', width: 24),
+            label: "Ayuda",
+          ),
         ],
       ),
     );
