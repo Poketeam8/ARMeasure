@@ -73,3 +73,115 @@ Trabajo futuro:
 - implementación de arquitectura MVVM completa
 - sincronización cloud
 
+# Diagrama Estructural
+
+```mermaid
+graph TD
+
+A[Presentation Layer]
+
+A --> A1[SplashScreen]
+A --> A2[MainNavigation]
+A --> A3[HomeScreen]
+A --> A4[MeasurementScreen]
+A --> A5[HistoryScreen]
+A --> A6[DetailScreen]
+A --> A7[AboutScreen]
+A --> A8[HelpScreen]
+
+A --> B[Domain Layer]
+
+B --> B1[Measurement Logic]
+B --> B2[Camera Initialization]
+B --> B3[Measurement Flow]
+
+B --> C[Data Layer]
+
+C --> C1[MeasurementData]
+C --> C2[CameraService]
+C --> C3[StorageService]
+
+C --> D[Infrastructure Layer]
+
+D --> D1[Camera Plugin]
+D --> D2[SharedPreferences]
+D --> D3[Android Camera Hardware]
+```
+
+---
+
+# Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+
+actor Usuario
+
+participant MeasurementScreen
+participant CameraService
+participant CameraPlugin
+participant Hardware
+participant MeasurementLogic
+participant StorageService
+participant SharedPreferences
+
+Usuario->>MeasurementScreen: Abrir pantalla Medir
+
+MeasurementScreen->>CameraService: Inicializar cámara
+
+CameraService->>CameraPlugin: Solicitar acceso
+
+CameraPlugin->>Hardware: Acceder cámara
+
+Hardware-->>CameraPlugin: Cámara inicializada
+
+CameraPlugin-->>CameraService: Respuesta exitosa
+
+CameraService-->>MeasurementScreen: Cámara lista
+
+Usuario->>MeasurementScreen: Presionar botón Medir
+
+MeasurementScreen->>MeasurementLogic: Generar medición
+
+MeasurementLogic-->>MeasurementScreen: Distancia calculada
+
+MeasurementScreen->>StorageService: Guardar medición
+
+StorageService->>SharedPreferences: Persistir datos
+
+SharedPreferences-->>StorageService: Guardado exitoso
+
+StorageService-->>MeasurementScreen: Confirmación
+
+MeasurementScreen-->>Usuario: Mostrar resultado
+```
+
+---
+
+# Diagrama de Estados
+
+```mermaid
+stateDiagram-v2
+
+[*] --> Idle
+
+Idle --> InicializandoCamara
+
+InicializandoCamara --> CamaraLista
+InicializandoCamara --> ErrorCamara
+
+ErrorCamara --> Retry
+Retry --> InicializandoCamara
+
+CamaraLista --> RealizandoMedicion
+
+RealizandoMedicion --> GuardandoDatos
+
+GuardandoDatos --> MedicionExitosa
+GuardandoDatos --> ErrorPersistencia
+
+ErrorPersistencia --> RetryPersistencia
+RetryPersistencia --> GuardandoDatos
+
+MedicionExitosa --> CamaraLista
+```
