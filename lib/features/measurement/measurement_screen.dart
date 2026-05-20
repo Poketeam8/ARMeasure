@@ -1,6 +1,11 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+
 import '../../core/data/measurement_data.dart';
+import '../../core/services/storage_service.dart';
+import '../../main.dart';
 
 class MeasurementScreen extends StatefulWidget {
   const MeasurementScreen({super.key});
@@ -10,35 +15,87 @@ class MeasurementScreen extends StatefulWidget {
 }
 
 class _MeasurementScreenState extends State<MeasurementScreen> {
+  CameraController? controller;
+
+  bool isLoading = true;
+
+  String estado = "Inicializando cámara...";
+
   double? distancia;
 
-  void medir() {
+  @override
+  void initState() {
+    super.initState();
+    iniciarCamara();
+  }
+
+  Future<void> iniciarCamara() async {
+    try {
+      controller = CameraController(
+        cameras[0],
+        ResolutionPreset.medium,
+      );
+
+      await controller!.initialize();
+
+      setState(() {
+        isLoading = false;
+        estado = "Cámara lista";
+      });
+    } catch (e) {
+      setState(() {
+        estado = "Error al iniciar cámara";
+      });
+    }
+  }
+
+  Future<void> medir() async {
     final nuevaDistancia = Random().nextDouble() * 5;
 
     setState(() {
       distancia = nuevaDistancia;
+
       MeasurementData.measurements.add(nuevaDistancia);
     });
+
+    await StorageService.saveMeasurements(
+      MeasurementData.measurements,
+    );
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Medir")),
+
       body: Padding(
         padding: const EdgeInsets.all(20),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+
           children: [
-            Image.asset('assets/images/icons/medir.png', width: 80),
+            Text(
+              estado,
+              style: const TextStyle(fontSize: 18),
+            ),
+
             const SizedBox(height: 20),
 
-            const Text(
-              "Simulación de medición AR",
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
+            if (isLoading)
+              const CircularProgressIndicator()
+            else if (controller != null &&
+                controller!.value.isInitialized)
+              AspectRatio(
+                aspectRatio: controller!.value.aspectRatio,
+                child: CameraPreview(controller!),
+              ),
 
             const SizedBox(height: 30),
 
@@ -53,9 +110,12 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
+
                   child: Text(
                     "Distancia: ${distancia!.toStringAsFixed(2)} m",
+
                     style: const TextStyle(fontSize: 18),
+
                     textAlign: TextAlign.center,
                   ),
                 ),

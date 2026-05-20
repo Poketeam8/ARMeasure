@@ -1,5 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import '../../core/data/measurement_data.dart';
+import '../../core/services/storage_service.dart';
 import '../navigation/main_navigation.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,12 +18,21 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainNavigation()),
-      );
-    });
+    cargarDatos();
+  }
+
+  Future<void> cargarDatos() async {
+    MeasurementData.measurements =
+        await StorageService.loadMeasurements();
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MainNavigation(),
+      ),
+    );
   }
 
   @override
@@ -28,7 +41,10 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Text(
           "ARMeasure",
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
