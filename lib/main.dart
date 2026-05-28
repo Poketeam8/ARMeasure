@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+
 import 'core/theme/app_theme.dart';
 import 'features/splash/splash_screen.dart';
 
-void main() {
+late List<CameraDescription> cameras;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  cameras = await availableCameras();
+
   runApp(const MyApp());
 }
 

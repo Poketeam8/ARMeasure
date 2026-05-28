@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../home/home_screen.dart';
 import '../measurement/measurement_screen.dart';
 import '../history/history_screen.dart';
-import '../profile/profile_screen.dart';
 import '../about/about_screen.dart';
 import '../help/help_screen.dart';
 
@@ -21,7 +20,6 @@ class _MainNavigationState extends State<MainNavigation> {
     HomeScreen(),
     MeasurementScreen(),
     HistoryScreen(),
-    ProfileScreen(),
     AboutScreen(),
     HelpScreen(),
   ];
@@ -46,10 +44,6 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Image.asset('assets/images/icons/historial.png', width: 24),
             label: "Historial",
-          ),
-          BottomNavigationBarItem(
-            icon: Image.asset('assets/images/icons/perfil.png', width: 24),
-            label: "Perfil",
           ),
           BottomNavigationBarItem(
             icon: Image.asset('assets/images/icons/about.png', width: 24),
