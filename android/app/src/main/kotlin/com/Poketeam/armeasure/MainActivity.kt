@@ -1,4 +1,4 @@
-package com.Poketeam.app
+package com.poketeam.armeasure
 
 import io.flutter.embedding.android.FlutterActivity
 
