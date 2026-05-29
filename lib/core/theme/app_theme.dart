@@ -10,18 +10,38 @@ class AppTheme {
         brightness: Brightness.light,
       ),
 
-      scaffoldBackgroundColor: const Color.fromARGB(255, 253, 251, 100),
+      scaffoldBackgroundColor: const Color.fromARGB(255, 242, 226, 5),
 
-      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        elevation: 0,
+
+        backgroundColor: Colors.black,
+
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
+
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+      ),
 
       cardTheme: CardThemeData(
         elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+          padding: const EdgeInsets.symmetric(
+            vertical: 14,
+            horizontal: 20,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
