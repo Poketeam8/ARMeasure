@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-
+import '../../core/data/preferences_data.dart';
+import '../../core/utils/measurement_utils.dart';
 import '../../core/data/measurement_data.dart';
 import '../../core/services/storage_service.dart';
 import '../../main.dart';
@@ -112,7 +113,10 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
                   padding: const EdgeInsets.all(16),
 
                   child: Text(
-                    "Distancia: ${distancia!.toStringAsFixed(2)} m",
+                    "Distancia: "
+                    "${MeasurementUtils.convert(distancia!)
+                        .toStringAsFixed(PreferencesData.decimals)} "
+                    "${PreferencesData.unit}",
 
                     style: const TextStyle(fontSize: 18),
 

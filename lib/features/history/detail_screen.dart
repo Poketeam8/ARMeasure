@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/data/preferences_data.dart';
+import '../../core/utils/measurement_utils.dart';
 
 class DetailScreen extends StatelessWidget {
   final double valor;
@@ -11,7 +13,10 @@ class DetailScreen extends StatelessWidget {
       appBar: AppBar(title: const Text("Detalle")),
       body: Center(
         child: Text(
-          "Distancia: $valor m",
+          "Distancia: "
+          "${MeasurementUtils.convert(valor)
+              .toStringAsFixed(PreferencesData.decimals)} "
+          "${PreferencesData.unit}",
           style: const TextStyle(fontSize: 22),
         ),
       ),

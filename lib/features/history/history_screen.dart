@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'detail_screen.dart';
 import '../../core/data/measurement_data.dart';
+import '../../core/data/preferences_data.dart';
+import '../../core/utils/measurement_utils.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -34,7 +36,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       width: 30,
                     ),
                     title: Text("Medición ${index + 1}"),
-                    subtitle: Text("${valor.toStringAsFixed(2)} m"),
+                    subtitle: Text(
+                      "${MeasurementUtils.convert(valor)
+                          .toStringAsFixed(PreferencesData.decimals)} "
+                      "${PreferencesData.unit}",
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,

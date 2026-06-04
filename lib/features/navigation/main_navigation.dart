@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../home/home_screen.dart';
 import '../measurement/measurement_screen.dart';
 import '../history/history_screen.dart';
-import '../about/about_screen.dart';
+import '../preferences/preferences_screen.dart';
 import '../help/help_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -20,7 +20,7 @@ class _MainNavigationState extends State<MainNavigation> {
     HomeScreen(),
     MeasurementScreen(),
     HistoryScreen(),
-    AboutScreen(),
+    PreferencesScreen(),
     HelpScreen(),
   ];
 
@@ -46,8 +46,8 @@ class _MainNavigationState extends State<MainNavigation> {
             label: "Historial",
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/icons/about.png', width: 24),
-            label: "About",
+            icon: Image.asset('assets/images/icons/settings.png', width: 24),
+            label: "Preferencias",
           ),
           BottomNavigationBarItem(
             icon: Image.asset('assets/images/icons/ayuda.png', width: 24),
