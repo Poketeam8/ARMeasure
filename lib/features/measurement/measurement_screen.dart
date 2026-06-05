@@ -35,6 +35,7 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
       controller = CameraController(
         cameras[0],
         ResolutionPreset.medium,
+        enableAudio: false,
       );
 
       await controller!.initialize();
