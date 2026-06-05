@@ -4,12 +4,17 @@ import 'package:camera/camera.dart';
 import 'core/theme/app_theme.dart';
 import 'features/splash/splash_screen.dart';
 
-late List<CameraDescription> cameras;
+List<CameraDescription> cameras = [];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  cameras = await availableCameras();
+  try {
+    cameras = await availableCameras();
+  } catch (e) {
+    debugPrint("No se pudo acceder a las cámaras en el main: $e");
+    cameras = []; 
+  }
 
   runApp(const MyApp());
 }

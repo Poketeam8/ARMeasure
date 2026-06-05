@@ -10,12 +10,25 @@ class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Detalle")),
+      appBar: AppBar(
+        title: const Text("Detalle"),
+       
+        leading: IconButton(
+          icon: Image.asset(
+            'assets/images/icons/back.png', 
+            width: 24,                    
+            height: 24,
+            fit: BoxFit.contain,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop(); 
+          },
+        ),
+      ),
       body: Center(
         child: Text(
           "Distancia: "
-          "${MeasurementUtils.convert(valor)
-              .toStringAsFixed(PreferencesData.decimals)} "
+          "${MeasurementUtils.convert(valor).toStringAsFixed(PreferencesData.decimals)} "
           "${PreferencesData.unit}",
           style: const TextStyle(fontSize: 22),
         ),

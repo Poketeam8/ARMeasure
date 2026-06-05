@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import '../../core/data/preferences_data.dart';
@@ -17,11 +16,9 @@ class MeasurementScreen extends StatefulWidget {
 
 class _MeasurementScreenState extends State<MeasurementScreen> {
   CameraController? controller;
-
   bool isLoading = true;
-
+  bool hasPermission = true;
   String estado = "Inicializando cámara...";
-
   double? distancia;
 
   @override
@@ -31,7 +28,17 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   }
 
   Future<void> iniciarCamara() async {
+    setState(() {
+      isLoading = true;
+      hasPermission = true;
+      estado = "Inicializando cámara...";
+    });
+
     try {
+      if (cameras.isEmpty) {
+        throw CameraException("NoCameras", "No se encontraron cámaras en el dispositivo");
+      }
+
       controller = CameraController(
         cameras[0],
         ResolutionPreset.medium,
@@ -42,11 +49,14 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
 
       setState(() {
         isLoading = false;
+        hasPermission = true;
         estado = "Cámara lista";
       });
     } catch (e) {
       setState(() {
-        estado = "Error al iniciar cámara";
+        isLoading = false;
+        hasPermission = false; 
+        estado = "Error de acceso";
       });
     }
   }
@@ -56,7 +66,6 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
 
     setState(() {
       distancia = nuevaDistancia;
-
       MeasurementData.measurements.add(nuevaDistancia);
     });
 
@@ -75,57 +84,75 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Medir")),
-
       body: Padding(
         padding: const EdgeInsets.all(20),
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Text(
-              estado,
-              style: const TextStyle(fontSize: 18),
-            ),
-
-            const SizedBox(height: 20),
-
-            if (isLoading)
-              const CircularProgressIndicator()
-            else if (controller != null &&
-                controller!.value.isInitialized)
-              AspectRatio(
-                aspectRatio: controller!.value.aspectRatio,
-                child: CameraPreview(controller!),
+        child: Center( 
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                estado,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 20),
 
-            const SizedBox(height: 30),
+              if (isLoading)
+                const CircularProgressIndicator()
+              else if (!hasPermission)
 
-            ElevatedButton(
-              onPressed: medir,
-              child: const Text("Realizar medición"),
-            ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                   
+                    Image.asset(
+                      'assets/images/icons/warning.png', width: 80,height: 80,fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 15),
+                    const Text(
+                      "(No se tiene acceso a la cámara)",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.red),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: iniciarCamara,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text("Pedir acceso de nuevo"),
+                    ),
+                  ],
+                )
+              else if (controller != null && controller!.value.isInitialized)
+                AspectRatio(
+                  aspectRatio: controller!.value.aspectRatio,
+                  child: CameraPreview(controller!),
+                ),
 
-            const SizedBox(height: 30),
+              if (!isLoading && hasPermission) ...[
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: medir,
+                  child: const Text("Realizar medición"),
+                ),
+              ],
 
-            if (distancia != null)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+              const SizedBox(height: 30),
 
-                  child: Text(
-                    "Distancia: "
-                    "${MeasurementUtils.convert(distancia!)
-                        .toStringAsFixed(PreferencesData.decimals)} "
-                    "${PreferencesData.unit}",
-
-                    style: const TextStyle(fontSize: 18),
-
-                    textAlign: TextAlign.center,
+              if (distancia != null && hasPermission)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      "Distancia: "
+                      "${MeasurementUtils.convert(distancia!).toStringAsFixed(PreferencesData.decimals)} "
+                      "${PreferencesData.unit}",
+                      style: const TextStyle(fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
