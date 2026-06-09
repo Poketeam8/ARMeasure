@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "question": "La aplicación fue fácil de usar",
+    "min": 1,
+    "max": 5
+  },
+  {
+    "id": 2,
+    "question": "La interfaz fue clara",
+    "min": 1,
+    "max": 5
+  },
+  {
+    "id": 3,
+    "question": "La medición fue satisfactoria",
+    "min": 1,
+    "max": 5
+  },
+  {
+    "id": 4,
+    "question": "La aplicación respondió de forma rápida",
+    "min": 1,
+    "max": 5
+  },
+  {
+    "id": 5,
+    "question": "Los resultados obtenidos fueron precisos",
+    "min": 1,
+    "max": 5
+  },
+  {
+    "id": 6,
+    "question": "Recomendaría esta aplicación a otras personas",
+    "min": 1,
+    "max": 5
+  }
+]

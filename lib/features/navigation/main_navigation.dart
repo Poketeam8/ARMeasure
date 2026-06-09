@@ -4,7 +4,7 @@ import '../home/home_screen.dart';
 import '../measurement/measurement_screen.dart';
 import '../history/history_screen.dart';
 import '../preferences/preferences_screen.dart';
-import '../help/help_screen.dart';
+import '../survey/survey_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -21,7 +21,7 @@ class _MainNavigationState extends State<MainNavigation> {
     MeasurementScreen(),
     HistoryScreen(),
     PreferencesScreen(),
-    HelpScreen(),
+    SurveyScreen(),
   ];
 
   @override
@@ -51,7 +51,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           BottomNavigationBarItem(
             icon: Image.asset('assets/images/icons/ayuda.png', width: 24),
-            label: "Ayuda",
+            label: "Encuesta",
           ),
         ],
       ),
