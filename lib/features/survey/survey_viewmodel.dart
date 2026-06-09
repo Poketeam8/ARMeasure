@@ -12,18 +12,17 @@ class SurveyViewModel {
   Future<void> loadQuestions() async {
     final jsonString =
         await rootBundle.loadString(
-          'assets/json/questions.json',
-        );
+      'assets/json/questions.json',
+    );
 
     final List<dynamic> data =
         json.decode(jsonString);
 
-    questions =
-        data
-            .map(
-              (e) => QuestionModel.fromJson(e),
-            )
-            .toList();
+    questions = data
+        .map(
+          (e) => QuestionModel.fromJson(e),
+        )
+        .toList();
   }
 
   void saveAnswer(
@@ -34,17 +33,16 @@ class SurveyViewModel {
   }
 
   bool get allAnswered {
-    return answers.length == questions.length;
+    return answers.length ==
+        questions.length;
   }
 
   String buildEmailBody() {
-    String body = "Resultados de encuesta\n\n";
-
-    for (var q in questions) {
-      body +=
-          "${q.question}: ${answers[q.id]}\n";
-    }
-
-    return body;
+    return questions
+        .map(
+          (q) =>
+              "${q.question}: ${answers[q.id]}",
+        )
+        .join("\r\n");
   }
 }

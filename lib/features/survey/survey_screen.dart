@@ -32,13 +32,10 @@ class _SurveyScreenState extends State<SurveyScreen> {
   Future<void> sendEmail() async {
     final body = vm.buildEmailBody();
 
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: 'malvasala@gmail.com',
-      queryParameters: {
-        'subject': 'Resultados Encuesta ARMeasure',
-        'body': body,
-      },
+    final Uri emailUri = Uri.parse(
+      'mailto:malvasala@gmail.com'
+      '?subject=${Uri.encodeComponent("Resultados Encuesta ARMeasure")}'
+      '&body=${Uri.encodeComponent(body)}',
     );
 
     await launchUrl(emailUri);
