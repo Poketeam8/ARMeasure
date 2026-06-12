@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-
 import 'core/theme/app_theme.dart';
 import 'features/splash/splash_screen.dart';
 
@@ -12,8 +11,8 @@ Future<void> main() async {
   try {
     cameras = await availableCameras();
   } catch (e) {
-    debugPrint("No se pudo acceder a las cámaras en el main: $e");
-    cameras = []; 
+    debugPrint("Error cámaras: $e");
+    cameras = [];
   }
 
   runApp(const MyApp());

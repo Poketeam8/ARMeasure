@@ -1,17 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'detail_screen.dart';
+
 import '../../core/data/measurement_data.dart';
 import '../../core/data/preferences_data.dart';
 import '../../core/utils/measurement_utils.dart';
+import 'detail_screen.dart';
 
-class HistoryScreen extends StatefulWidget {
+class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
-  @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
-}
-
-class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final datos = MeasurementData.measurements;
@@ -19,33 +16,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Historial")),
       body: datos.isEmpty
-          ? const Center(child: Text("No hay mediciones aún"))
+          ? const Center(child: Text("No hay mediciones"))
           : ListView.builder(
               itemCount: datos.length,
               itemBuilder: (context, index) {
-                final valor = datos[index];
+                final item = datos[index];
 
                 return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
                   child: ListTile(
-                    leading: Image.asset(
-                      'assets/images/icons/medir.png',
-                      width: 30,
+                    leading: Image.file(
+                      File(item.imagePath),
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
                     ),
                     title: Text("Medición ${index + 1}"),
                     subtitle: Text(
-                      "${MeasurementUtils.convert(valor)
-                          .toStringAsFixed(PreferencesData.decimals)} "
+                      "${MeasurementUtils.convert(item.value).toStringAsFixed(PreferencesData.decimals)} "
                       "${PreferencesData.unit}",
                     ),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => DetailScreen(valor: valor),
+                          builder: (_) => DetailScreen(valor: item.value),
                         ),
                       );
                     },

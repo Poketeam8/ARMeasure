@@ -1,11 +1,15 @@
 import 'dart:math';
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import '../../core/data/measurement_record.dart';
 import '../../core/data/preferences_data.dart';
 import '../../core/utils/measurement_utils.dart';
 import '../../core/data/measurement_data.dart';
 import '../../core/services/storage_service.dart';
 import '../../main.dart';
+import 'loading_jokes_screen.dart';
 
 class MeasurementScreen extends StatefulWidget {
   const MeasurementScreen({super.key});
@@ -30,15 +34,10 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   Future<void> iniciarCamara() async {
     setState(() {
       isLoading = true;
-      hasPermission = true;
       estado = "Inicializando cámara...";
     });
 
     try {
-      if (cameras.isEmpty) {
-        throw CameraException("NoCameras", "No se encontraron cámaras en el dispositivo");
-      }
-
       controller = CameraController(
         cameras[0],
         ResolutionPreset.medium,
@@ -55,22 +54,50 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
     } catch (e) {
       setState(() {
         isLoading = false;
-        hasPermission = false; 
-        estado = "Error de acceso";
+        hasPermission = false;
+        estado = "Error de cámara";
       });
     }
   }
 
   Future<void> medir() async {
-    final nuevaDistancia = Random().nextDouble() * 5;
+    if (controller == null || !controller!.value.isInitialized) return;
 
-    setState(() {
-      distancia = nuevaDistancia;
-      MeasurementData.measurements.add(nuevaDistancia);
-    });
+    final photo = await controller!.takePicture();
 
-    await StorageService.saveMeasurements(
-      MeasurementData.measurements,
+    if (!mounted) return;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => LoadingJokesScreen(
+          onFinish: () async {
+            final nuevaDistancia = Random().nextDouble() * 5;
+
+            final dir = await getApplicationDocumentsDirectory();
+            final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+            final savedImage =
+                await File(photo.path).copy('${dir.path}/$fileName.jpg');
+
+            MeasurementData.measurements.add(
+              MeasurementRecord(
+                value: nuevaDistancia,
+                imagePath: savedImage.path,
+              ),
+            );
+
+            await StorageService.saveMeasurements(
+              MeasurementData.measurements,
+            );
+
+            setState(() {
+              distancia = nuevaDistancia;
+            });
+          },
+        ),
+      ),
     );
   }
 
@@ -84,75 +111,38 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Medir")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Center( 
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                estado,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(estado),
+
+            const SizedBox(height: 20),
+
+            if (isLoading)
+              const CircularProgressIndicator()
+            else if (controller != null &&
+                controller!.value.isInitialized)
+              AspectRatio(
+                aspectRatio: controller!.value.aspectRatio,
+                child: CameraPreview(controller!),
               ),
-              const SizedBox(height: 20),
 
-              if (isLoading)
-                const CircularProgressIndicator()
-              else if (!hasPermission)
+            const SizedBox(height: 20),
 
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                   
-                    Image.asset(
-                      'assets/images/icons/warning.png', width: 80,height: 80,fit: BoxFit.contain,
-                    ),
-                    const SizedBox(height: 15),
-                    const Text(
-                      "(No se tiene acceso a la cámara)",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, color: Colors.red),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: iniciarCamara,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text("Pedir acceso de nuevo"),
-                    ),
-                  ],
-                )
-              else if (controller != null && controller!.value.isInitialized)
-                AspectRatio(
-                  aspectRatio: controller!.value.aspectRatio,
-                  child: CameraPreview(controller!),
-                ),
+            ElevatedButton(
+              onPressed: medir,
+              child: const Text("Realizar medición"),
+            ),
 
-              if (!isLoading && hasPermission) ...[
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: medir,
-                  child: const Text("Realizar medición"),
-                ),
-              ],
+            const SizedBox(height: 20),
 
-              const SizedBox(height: 30),
-
-              if (distancia != null && hasPermission)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      "Distancia: "
-                      "${MeasurementUtils.convert(distancia!).toStringAsFixed(PreferencesData.decimals)} "
-                      "${PreferencesData.unit}",
-                      style: const TextStyle(fontSize: 18),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
-          ),
+            if (distancia != null)
+              Text(
+                "${MeasurementUtils.convert(distancia!).toStringAsFixed(PreferencesData.decimals)} "
+                "${PreferencesData.unit}",
+              ),
+          ],
         ),
       ),
     );

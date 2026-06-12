@@ -1,3 +1,5 @@
+import 'measurement_record.dart';
+
 class MeasurementData {
-  static List<double> measurements = [];
+  static List<MeasurementRecord> measurements = [];
 }
