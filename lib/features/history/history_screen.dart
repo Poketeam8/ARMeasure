@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/data/measurement_data.dart';
 import '../../core/data/preferences_data.dart';
@@ -8,6 +9,24 @@ import 'detail_screen.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
+
+  Future<void> shareRecord(record) async {
+    final text = """
+📏 Medición ARMeasure
+
+Distancia: ${MeasurementUtils.convert(record.value).toStringAsFixed(PreferencesData.decimals)} ${PreferencesData.unit}
+
+😂 Chistes:
+- ${record.jokes.join("\n- ")}
+
+📱 Generado con ARMeasure
+""";
+
+    await Share.shareXFiles(
+      [XFile(record.imagePath)],
+      text: text,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +43,42 @@ class HistoryScreen extends StatelessWidget {
 
                 return Card(
                   child: ListTile(
+                    // 📸 miniatura
                     leading: Image.file(
                       File(item.imagePath),
                       width: 50,
                       height: 50,
                       fit: BoxFit.cover,
                     ),
+
                     title: Text("Medición ${index + 1}"),
+
                     subtitle: Text(
                       "${MeasurementUtils.convert(item.value).toStringAsFixed(PreferencesData.decimals)} "
                       "${PreferencesData.unit}",
                     ),
+
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => DetailScreen(valor: item.value),
+                          builder: (_) => DetailScreen(record: item),
                         ),
                       );
                     },
+
+                    trailing: GestureDetector(
+                      onTap: () => shareRecord(item),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset(
+                          'assets/images/icons/compartir.png',
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },

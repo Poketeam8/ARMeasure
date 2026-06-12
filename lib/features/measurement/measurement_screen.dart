@@ -72,7 +72,7 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (_) => LoadingJokesScreen(
-          onFinish: () async {
+          onFinish: (jokes) async {
             final nuevaDistancia = Random().nextDouble() * 5;
 
             final dir = await getApplicationDocumentsDirectory();
@@ -81,12 +81,13 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
             final savedImage =
                 await File(photo.path).copy('${dir.path}/$fileName.jpg');
 
-            MeasurementData.measurements.add(
-              MeasurementRecord(
-                value: nuevaDistancia,
-                imagePath: savedImage.path,
-              ),
+            final record = MeasurementRecord(
+              value: nuevaDistancia,
+              imagePath: savedImage.path,
+              jokes: jokes,
             );
+
+            MeasurementData.measurements.add(record);
 
             await StorageService.saveMeasurements(
               MeasurementData.measurements,

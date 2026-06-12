@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class LoadingJokesScreen extends StatefulWidget {
-  final Future<void> Function() onFinish;
+  final Future<void> Function(List<String> jokes) onFinish;
 
   const LoadingJokesScreen({
     super.key,
@@ -18,7 +18,7 @@ class _LoadingJokesScreenState extends State<LoadingJokesScreen> {
     "Esperando que Miami confirme la medición...",
     "Contando los átomos de la imagen...",
     "Calibrando las dimensiones...",
-    "Preguntándole a Schrödinger si la imagen esta viva o muerta...",
+    "Preguntándole a Schrödinger si la imagen está viva o muerta...",
     "Negociando con Cthulhu para que mida la imagen...",
     "Consultando con NASA...",
     "Esperando que el Vaticano santifique la medición...",
@@ -51,7 +51,7 @@ class _LoadingJokesScreenState extends State<LoadingJokesScreen> {
       await Future.delayed(const Duration(seconds: 2));
     }
 
-    await widget.onFinish();
+    await widget.onFinish(selectedJokes);
 
     if (mounted) Navigator.pop(context);
   }
