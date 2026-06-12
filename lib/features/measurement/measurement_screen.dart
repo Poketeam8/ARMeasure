@@ -1,11 +1,13 @@
 import 'dart:math';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math_64.dart' as vm;
+
+import 'package:arcore_flutter_plus/arcore_flutter_plus.dart';
+
 import '../../core/data/preferences_data.dart';
 import '../../core/utils/measurement_utils.dart';
 import '../../core/data/measurement_data.dart';
 import '../../core/services/storage_service.dart';
-import '../../main.dart';
 
 class MeasurementScreen extends StatefulWidget {
   const MeasurementScreen({super.key});
@@ -15,145 +17,184 @@ class MeasurementScreen extends StatefulWidget {
 }
 
 class _MeasurementScreenState extends State<MeasurementScreen> {
-  CameraController? controller;
-  bool isLoading = true;
-  bool hasPermission = true;
-  String estado = "Inicializando cámara...";
-  double? distancia;
+  late ArCoreController arCoreController;
 
-  @override
-  void initState() {
-    super.initState();
-    iniciarCamara();
+  String estado = "Toca 2 puntos en el mundo";
+
+  vm.Vector3? punto1;
+  vm.Vector3? punto2;
+
+  ArCoreNode? nodo1;
+  ArCoreNode? nodo2;
+
+  // -----------------------------
+  // INIT AR
+  // -----------------------------
+  void _onArCoreViewCreated(ArCoreController controller) {
+    arCoreController = controller;
+    arCoreController.onPlaneTap = _onPlaneTap;
+
+    setState(() {
+      estado = "Listo. Toca el primer punto";
+    });
   }
 
-  Future<void> iniciarCamara() async {
-    setState(() {
-      isLoading = true;
-      hasPermission = true;
-      estado = "Inicializando cámara...";
-    });
+  // -----------------------------
+  // CREAR ESFERA ROJA
+  // -----------------------------
+  ArCoreNode _crearPuntoRojo(vm.Vector3 position) {
+    final material = ArCoreMaterial(
+      color: Colors.red,
+    );
 
-    try {
-      if (cameras.isEmpty) {
-        throw CameraException("NoCameras", "No se encontraron cámaras en el dispositivo");
+    final sphere = ArCoreSphere(
+      materials: [material],
+      radius: 0.03, // tamaño del punto
+    );
+
+    return ArCoreNode(
+      shape: sphere,
+      position: position,
+    );
+  }
+
+  // -----------------------------
+  // TAP EN PLANO (SOLO COLOCA PUNTOS)
+  // -----------------------------
+  void _onPlaneTap(List<ArCoreHitTestResult> results) {
+    if (results.isEmpty) return;
+
+    final hit = results.first;
+    final position = hit.pose.translation;
+
+    setState(() {
+      if (punto1 == null) {
+        punto1 = position;
+
+        nodo1 = _crearPuntoRojo(position);
+        arCoreController.addArCoreNode(nodo1!);
+
+        estado = "Primer punto colocado";
+      } else if (punto2 == null) {
+        punto2 = position;
+
+        nodo2 = _crearPuntoRojo(position);
+        arCoreController.addArCoreNode(nodo2!);
+
+        estado = "Segundo punto colocado";
       }
-
-      controller = CameraController(
-        cameras[0],
-        ResolutionPreset.medium,
-        enableAudio: false,
-      );
-
-      await controller!.initialize();
-
-      setState(() {
-        isLoading = false;
-        hasPermission = true;
-        estado = "Cámara lista";
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        hasPermission = false; 
-        estado = "Error de acceso";
-      });
-    }
+    });
   }
 
-  Future<void> medir() async {
-    final nuevaDistancia = Random().nextDouble() * 5;
+  // -----------------------------
+  // CALCULAR SOLO AL PRESIONAR BOTÓN
+  // -----------------------------
+  void medir() {
+    if (punto1 == null || punto2 == null) {
+      setState(() {
+        estado = "Debes seleccionar 2 puntos primero";
+      });
+      return;
+    }
+
+    final dx = punto2!.x - punto1!.x;
+    final dy = punto2!.y - punto1!.y;
+    final dz = punto2!.z - punto1!.z;
+
+    final distancia = sqrt(dx * dx + dy * dy + dz * dz);
 
     setState(() {
-      distancia = nuevaDistancia;
-      MeasurementData.measurements.add(nuevaDistancia);
+      estado = "Medición completada";
     });
 
-    await StorageService.saveMeasurements(
+    MeasurementData.measurements.add(distancia);
+
+    StorageService.saveMeasurements(
       MeasurementData.measurements,
     );
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Resultado"),
+        content: Text(
+          "Distancia: ${MeasurementUtils.convert(distancia).toStringAsFixed(PreferencesData.decimals)} ${PreferencesData.unit}",
+        ),
+      ),
+    );
+  }
+
+  // -----------------------------
+  // RESET
+  // -----------------------------
+  void reset() {
+    setState(() {
+      punto1 = null;
+      punto2 = null;
+      estado = "Toca 2 nuevos puntos";
+    });
+
+    if (nodo1 != null) {
+      arCoreController.removeNode(nodeName: nodo1!.name);
+      nodo1 = null;
+    }
+
+    if (nodo2 != null) {
+      arCoreController.removeNode(nodeName: nodo2!.name);
+      nodo2 = null;
+    }
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    arCoreController.dispose();
     super.dispose();
   }
 
+  // -----------------------------
+  // UI
+  // -----------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Medir")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Center( 
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                estado,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
+      appBar: AppBar(title: const Text("Medición AR real")),
+      body: Column(
+        children: [
+          Expanded(
+            child: ArCoreView(
+              onArCoreViewCreated: _onArCoreViewCreated,
+              enableTapRecognizer: true,
+            ),
+          ),
 
-              if (isLoading)
-                const CircularProgressIndicator()
-              else if (!hasPermission)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(
+                  estado,
+                  textAlign: TextAlign.center,
+                ),
 
-                Column(
-                  mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: 10),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                   
-                    Image.asset(
-                      'assets/images/icons/warning.png', width: 80,height: 80,fit: BoxFit.contain,
+                    ElevatedButton(
+                      onPressed: medir,
+                      child: const Text("Medir"),
                     ),
-                    const SizedBox(height: 15),
-                    const Text(
-                      "(No se tiene acceso a la cámara)",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, color: Colors.red),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: iniciarCamara,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text("Pedir acceso de nuevo"),
+                    ElevatedButton(
+                      onPressed: reset,
+                      child: const Text("Reset"),
                     ),
                   ],
-                )
-              else if (controller != null && controller!.value.isInitialized)
-                AspectRatio(
-                  aspectRatio: controller!.value.aspectRatio,
-                  child: CameraPreview(controller!),
-                ),
-
-              if (!isLoading && hasPermission) ...[
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: medir,
-                  child: const Text("Realizar medición"),
                 ),
               ],
-
-              const SizedBox(height: 30),
-
-              if (distancia != null && hasPermission)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      "Distancia: "
-                      "${MeasurementUtils.convert(distancia!).toStringAsFixed(PreferencesData.decimals)} "
-                      "${PreferencesData.unit}",
-                      style: const TextStyle(fontSize: 18),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
