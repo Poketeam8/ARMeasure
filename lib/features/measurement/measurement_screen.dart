@@ -18,7 +18,7 @@ class MeasurementScreen extends StatefulWidget {
 class _MeasurementScreenState extends State<MeasurementScreen> {
   ArCoreController? arCoreController;
 
-  String estado = "Toca 2 puntos en el mundo";
+  String estado = "Mire a su alrededor hasta que aparezcan puntos blancos";
 
   vm.Vector3? punto1;
   vm.Vector3? punto2;
@@ -26,22 +26,15 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   ArCoreNode? nodo1;
   ArCoreNode? nodo2;
 
-  bool arReady = false;
+  bool calibrado = false;
 
   void _onArCoreViewCreated(ArCoreController controller) {
     arCoreController = controller;
     arCoreController!.onPlaneTap = _onPlaneTap;
-
-    setState(() {
-      arReady = true;
-      estado = "Listo. Toca el primer punto";
-    });
   }
 
   ArCoreNode _crearPuntoRojo(vm.Vector3 position) {
-    final material = ArCoreMaterial(
-      color: Colors.red,
-    );
+    final material = ArCoreMaterial(color: Colors.red);
 
     final sphere = ArCoreSphere(
       materials: [material],
@@ -62,13 +55,18 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
     final position = hit.pose.translation;
 
     setState(() {
+      // Primer tap exitoso = AR calibrado
+      if (!calibrado) {
+        calibrado = true;
+      }
+
       if (punto1 == null) {
         punto1 = position;
 
         nodo1 = _crearPuntoRojo(position);
         arCoreController?.addArCoreNode(nodo1!);
 
-        estado = "Primer punto colocado";
+        estado = "Primer punto colocado. Toca el segundo punto";
       } else if (punto2 == null) {
         punto2 = position;
 
@@ -136,11 +134,6 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -158,25 +151,30 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                if (!calibrado) ...[
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 12),
+                ],
                 Text(
                   estado,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: arReady ? medir : null,
-                      child: const Text("Medir"),
-                    ),
-                    ElevatedButton(
-                      onPressed: arReady ? reset : null,
-                      child: const Text("Reset"),
-                    ),
-                  ],
-                ),
+                if (calibrado)
+                  Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: medir,
+                        child: const Text("Medir"),
+                      ),
+                      ElevatedButton(
+                        onPressed: reset,
+                        child: const Text("Reset"),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
