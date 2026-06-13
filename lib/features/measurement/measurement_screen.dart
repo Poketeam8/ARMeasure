@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
-
 import 'package:arcore_flutter_plus/arcore_flutter_plus.dart';
 
 import '../../core/data/preferences_data.dart';
@@ -17,7 +16,7 @@ class MeasurementScreen extends StatefulWidget {
 }
 
 class _MeasurementScreenState extends State<MeasurementScreen> {
-  late ArCoreController arCoreController;
+  ArCoreController? arCoreController;
 
   String estado = "Toca 2 puntos en el mundo";
 
@@ -27,21 +26,18 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   ArCoreNode? nodo1;
   ArCoreNode? nodo2;
 
-  // -----------------------------
-  // INIT AR
-  // -----------------------------
+  bool arReady = false;
+
   void _onArCoreViewCreated(ArCoreController controller) {
     arCoreController = controller;
-    arCoreController.onPlaneTap = _onPlaneTap;
+    arCoreController!.onPlaneTap = _onPlaneTap;
 
     setState(() {
+      arReady = true;
       estado = "Listo. Toca el primer punto";
     });
   }
 
-  // -----------------------------
-  // CREAR ESFERA ROJA
-  // -----------------------------
   ArCoreNode _crearPuntoRojo(vm.Vector3 position) {
     final material = ArCoreMaterial(
       color: Colors.red,
@@ -49,7 +45,7 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
 
     final sphere = ArCoreSphere(
       materials: [material],
-      radius: 0.03, // tamaño del punto
+      radius: 0.03,
     );
 
     return ArCoreNode(
@@ -58,11 +54,9 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
     );
   }
 
-  // -----------------------------
-  // TAP EN PLANO (SOLO COLOCA PUNTOS)
-  // -----------------------------
   void _onPlaneTap(List<ArCoreHitTestResult> results) {
     if (results.isEmpty) return;
+    if (arCoreController == null) return;
 
     final hit = results.first;
     final position = hit.pose.translation;
@@ -72,23 +66,20 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
         punto1 = position;
 
         nodo1 = _crearPuntoRojo(position);
-        arCoreController.addArCoreNode(nodo1!);
+        arCoreController?.addArCoreNode(nodo1!);
 
         estado = "Primer punto colocado";
       } else if (punto2 == null) {
         punto2 = position;
 
         nodo2 = _crearPuntoRojo(position);
-        arCoreController.addArCoreNode(nodo2!);
+        arCoreController?.addArCoreNode(nodo2!);
 
         estado = "Segundo punto colocado";
       }
     });
   }
 
-  // -----------------------------
-  // CALCULAR SOLO AL PRESIONAR BOTÓN
-  // -----------------------------
   void medir() {
     if (punto1 == null || punto2 == null) {
       setState(() {
@@ -118,15 +109,14 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
       builder: (_) => AlertDialog(
         title: const Text("Resultado"),
         content: Text(
-          "Distancia: ${MeasurementUtils.convert(distancia).toStringAsFixed(PreferencesData.decimals)} ${PreferencesData.unit}",
+          "Distancia: "
+          "${MeasurementUtils.convert(distancia).toStringAsFixed(PreferencesData.decimals)} "
+          "${PreferencesData.unit}",
         ),
       ),
     );
   }
 
-  // -----------------------------
-  // RESET
-  // -----------------------------
   void reset() {
     setState(() {
       punto1 = null;
@@ -135,29 +125,27 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
     });
 
     if (nodo1 != null) {
-      arCoreController.removeNode(nodeName: nodo1!.name);
+      arCoreController?.removeNode(nodeName: nodo1!.name);
       nodo1 = null;
     }
 
     if (nodo2 != null) {
-      arCoreController.removeNode(nodeName: nodo2!.name);
+      arCoreController?.removeNode(nodeName: nodo2!.name);
       nodo2 = null;
     }
   }
 
   @override
   void dispose() {
-    arCoreController.dispose();
     super.dispose();
   }
 
-  // -----------------------------
-  // UI
-  // -----------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Medición AR real")),
+      appBar: AppBar(
+        title: const Text("Medición AR real"),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -166,7 +154,6 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
               enableTapRecognizer: true,
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -175,18 +162,17 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
                   estado,
                   textAlign: TextAlign.center,
                 ),
-
                 const SizedBox(height: 10),
-
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      onPressed: medir,
+                      onPressed: arReady ? medir : null,
                       child: const Text("Medir"),
                     ),
                     ElevatedButton(
-                      onPressed: reset,
+                      onPressed: arReady ? reset : null,
                       child: const Text("Reset"),
                     ),
                   ],

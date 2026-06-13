@@ -27,30 +27,52 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens[_index],
+      body: IndexedStack(
+        index: _index,
+        children: screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
-        onTap: (value) => setState(() => _index = value),
+        onTap: (value) {
+          setState(() {
+            _index = value;
+          });
+        },
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/icons/inicio.png', width: 24),
+            icon: Image.asset(
+              'assets/images/icons/inicio.png',
+              width: 24,
+            ),
             label: "Inicio",
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/icons/medir.png', width: 24),
+            icon: Image.asset(
+              'assets/images/icons/medir.png',
+              width: 24,
+            ),
             label: "Medir",
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/icons/historial.png', width: 24),
+            icon: Image.asset(
+              'assets/images/icons/historial.png',
+              width: 24,
+            ),
             label: "Historial",
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/icons/settings.png', width: 24),
+            icon: Image.asset(
+              'assets/images/icons/settings.png',
+              width: 24,
+            ),
             label: "Preferencias",
           ),
           BottomNavigationBarItem(
-            icon: Image.asset('assets/images/icons/ayuda.png', width: 24),
+            icon: Image.asset(
+              'assets/images/icons/ayuda.png',
+              width: 24,
+            ),
             label: "Encuesta",
           ),
         ],
