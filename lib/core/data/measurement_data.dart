@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+import 'measurement_record.dart';
+
 class MeasurementData {
-  static List<double> measurements = [];
-  static List<String> images = [];
+  static ValueNotifier<List<MeasurementRecord>> records =
+      ValueNotifier([]);
 }

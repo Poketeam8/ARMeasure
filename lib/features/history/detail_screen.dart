@@ -1,36 +1,40 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+
+import '../../core/data/measurement_record.dart';
 import '../../core/data/preferences_data.dart';
 import '../../core/utils/measurement_utils.dart';
 
 class DetailScreen extends StatelessWidget {
-  final double valor;
+  final MeasurementRecord record;
 
-  const DetailScreen({super.key, required this.valor});
+  const DetailScreen({
+    super.key,
+    required this.record,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Detalle"),
-       
-        leading: IconButton(
-          icon: Image.asset(
-            'assets/images/icons/back.png', 
-            width: 24,                    
-            height: 24,
-            fit: BoxFit.contain,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop(); 
-          },
-        ),
       ),
       body: Center(
-        child: Text(
-          "Distancia: "
-          "${MeasurementUtils.convert(valor).toStringAsFixed(PreferencesData.decimals)} "
-          "${PreferencesData.unit}",
-          style: const TextStyle(fontSize: 22),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.file(
+              File(record.imagePath),
+              width: 250,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Distancia: "
+              "${MeasurementUtils.convert(record.distance).toStringAsFixed(PreferencesData.decimals)} "
+              "${PreferencesData.unit}",
+              style: const TextStyle(fontSize: 22),
+            ),
+          ],
         ),
       ),
     );

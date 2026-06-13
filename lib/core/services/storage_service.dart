@@ -1,23 +1,34 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class StorageService {
-  static const key = 'measurements';
+import '../data/measurement_record.dart';
 
-  static Future<void> saveMeasurements(
-    List<double> values,
+class StorageService {
+  static const String key = 'measurement_records';
+
+  static Future<void> saveRecords(
+    List<MeasurementRecord> records,
   ) async {
     final prefs = await SharedPreferences.getInstance();
 
-    final data = values.map((e) => e.toString()).toList();
+    final data = records
+        .map((record) => jsonEncode(record.toJson()))
+        .toList();
 
     await prefs.setStringList(key, data);
   }
 
-  static Future<List<double>> loadMeasurements() async {
+  static Future<List<MeasurementRecord>> loadRecords() async {
     final prefs = await SharedPreferences.getInstance();
 
     final data = prefs.getStringList(key) ?? [];
 
-    return data.map((e) => double.parse(e)).toList();
+    return data
+        .map(
+          (e) => MeasurementRecord.fromJson(
+            jsonDecode(e),
+          ),
+        )
+        .toList();
   }
 }

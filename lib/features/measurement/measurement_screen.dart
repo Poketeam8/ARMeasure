@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
 import 'package:arcore_flutter_plus/arcore_flutter_plus.dart';
 
+import '../../main.dart';
+import '../camera/capture_photo_screen.dart';
+import '../../core/data/measurement_record.dart';
 import '../../core/data/preferences_data.dart';
 import '../../core/utils/measurement_utils.dart';
 import '../../core/data/measurement_data.dart';
@@ -55,7 +58,6 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
     final position = hit.pose.translation;
 
     setState(() {
-      // Primer tap exitoso = AR calibrado
       if (!calibrado) {
         calibrado = true;
       }
@@ -78,7 +80,7 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
     });
   }
 
-  void medir() {
+  Future<void> medir() async {
     if (punto1 == null || punto2 == null) {
       setState(() {
         estado = "Debes seleccionar 2 puntos primero";
@@ -96,12 +98,44 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
       estado = "Medición completada";
     });
 
-    MeasurementData.measurements.add(distancia);
+    if (cameras.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text("Error"),
+          content: Text("No hay cámaras disponibles"),
+        ),
+      );
+      return;
+    }
 
-    StorageService.saveMeasurements(
-      MeasurementData.measurements,
+    final imagePath = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CapturePhotoScreen(
+          camera: cameras.first,
+        ),
+      ),
     );
 
+    if (imagePath != null) {
+      final nuevos = List<MeasurementRecord>.from(
+        MeasurementData.records.value,
+      );
+
+      nuevos.add(
+        MeasurementRecord(
+          distance: distancia,
+          imagePath: imagePath,
+        ),
+      );
+
+      MeasurementData.records.value = nuevos;
+
+      await StorageService.saveRecords(
+        MeasurementData.records.value,
+      );
+    }
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -162,8 +196,7 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
                 const SizedBox(height: 10),
                 if (calibrado)
                   Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
                         onPressed: medir,

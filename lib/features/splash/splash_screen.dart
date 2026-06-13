@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../../core/data/measurement_data.dart';
@@ -17,15 +16,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
     cargarDatos();
   }
 
   Future<void> cargarDatos() async {
-    MeasurementData.measurements =
-        await StorageService.loadMeasurements();
+    final records =
+        await StorageService.loadRecords();
 
-    await Future.delayed(const Duration(seconds: 2));
+    MeasurementData.records.value = records;
+
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
 
     Navigator.pushReplacement(
       context,
