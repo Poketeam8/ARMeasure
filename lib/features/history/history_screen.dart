@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'detail_screen.dart';
 import '../../core/data/measurement_data.dart';
@@ -15,6 +16,20 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  Future<void> compartirMedicion(
+    MeasurementRecord record,
+  ) async {
+    final texto =
+        "Medición AR:\n"
+        "${MeasurementUtils.convert(record.distance).toStringAsFixed(PreferencesData.decimals)} "
+        "${PreferencesData.unit}";
+
+    await Share.shareXFiles(
+      [XFile(record.imagePath)],
+      text: texto,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +66,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   subtitle: Text(
                     "${MeasurementUtils.convert(record.distance).toStringAsFixed(PreferencesData.decimals)} "
                     "${PreferencesData.unit}",
+                  ),
+                  trailing: IconButton(
+                    icon: Image.asset(
+                      'assets/images/icons/share.png',
+                      width: 24,
+                      height: 24,
+                      fit: BoxFit.contain,
+                    ),
+                    onPressed: () => compartirMedicion(record),
                   ),
                   onTap: () {
                     Navigator.push(

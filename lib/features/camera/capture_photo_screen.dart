@@ -29,6 +29,7 @@ class _CapturePhotoScreenState
     controller = CameraController(
       widget.camera,
       ResolutionPreset.medium,
+      enableAudio: false,
     );
 
     await controller!.initialize();
@@ -65,6 +66,19 @@ class _CapturePhotoScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tomar Foto"),
+
+        // BACK PERSONALIZADO
+        leading: IconButton(
+          icon: Image.asset(
+            'assets/images/icons/back.png',
+            width: 24,
+            height: 24,
+            fit: BoxFit.contain,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Stack(
         children: [
@@ -76,7 +90,12 @@ class _CapturePhotoScreenState
             child: Center(
               child: FloatingActionButton(
                 onPressed: takePhoto,
-                child: const Icon(Icons.camera_alt),
+                child: Image.asset(
+                  'assets/images/icons/camera.png',
+                  width: 28,
+                  height: 28,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),

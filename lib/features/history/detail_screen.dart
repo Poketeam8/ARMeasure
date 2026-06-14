@@ -18,24 +18,37 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Detalle"),
+        leading: IconButton(
+          icon: Image.asset(
+            'assets/images/icons/back.png',
+            width: 24,
+            height: 24,
+            fit: BoxFit.contain,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.file(
+      body: Column(
+        children: [
+          Expanded(
+            child: Image.file(
               File(record.imagePath),
-              width: 250,
+              fit: BoxFit.cover,
+              width: double.infinity,
             ),
-            const SizedBox(height: 20),
-            Text(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
               "Distancia: "
               "${MeasurementUtils.convert(record.distance).toStringAsFixed(PreferencesData.decimals)} "
               "${PreferencesData.unit}",
               style: const TextStyle(fontSize: 22),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
