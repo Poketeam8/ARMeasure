@@ -322,10 +322,10 @@ Ruta:
 # Recursos Multimedia
 
 Video demostrativo:
-[Agregar link]
+https://drive.google.com/file/d/1_lM6oaBuPRnhurDEBdhKA0r7oX4XOoWe/view?usp=drive_link
 
 Video exposición técnica:
-[Agregar link]
+https://drive.google.com/file/d/11Nr9HzjiI_E20xKvpf5u9yzs2BAcTTiQ/view?usp=drive_link
 
 ---
 
